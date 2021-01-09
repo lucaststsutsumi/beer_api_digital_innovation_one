@@ -6,6 +6,7 @@ import one.digitalinnovation.beerstock.entity.Beer;
 import one.digitalinnovation.beerstock.exceptions.BeerAlreadyRegisteredException;
 import one.digitalinnovation.beerstock.exceptions.BeerNotFoundException;
 import one.digitalinnovation.beerstock.exceptions.BeerStockExceededException;
+import one.digitalinnovation.beerstock.exceptions.BeerStockLessThanZeroException;
 import one.digitalinnovation.beerstock.mapper.BeerMapper;
 import one.digitalinnovation.beerstock.repository.BeerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,11 +60,24 @@ public class BeerService {
         Beer beerToIncrementStock = verifyIfExists(id);
         int quantityAfterIncrement = quantityToIncrement + beerToIncrementStock.getQuantity();
         if (quantityAfterIncrement <= beerToIncrementStock.getMax()) {
-            beerToIncrementStock.setQuantity(beerToIncrementStock.getQuantity() + quantityToIncrement);
+            beerToIncrementStock.setQuantity(quantityAfterIncrement);
             Beer incrementedBeerStock = beerRepository.save(beerToIncrementStock);
             return beerMapper.toDTO(incrementedBeerStock);
         }
 
         throw new BeerStockExceededException(id, quantityToIncrement);
+    }
+
+    public BeerDTO decrement(Long id, int quantityToDecrement) throws BeerNotFoundException, BeerStockLessThanZeroException {
+        Beer beerToDecrementStock = verifyIfExists(id);
+        int quantityAfterDecrement = beerToDecrementStock.getQuantity() - quantityToDecrement;
+
+        if (quantityAfterDecrement >= 0) {
+            beerToDecrementStock.setQuantity(quantityAfterDecrement);
+            Beer beerDecremented = beerRepository.save(beerToDecrementStock);
+            return beerMapper.toDTO(beerDecremented);
+        }
+
+        throw new BeerStockLessThanZeroException(id);
     }
 }

@@ -6,6 +6,7 @@ import one.digitalinnovation.beerstock.dto.QuantityDTO;
 import one.digitalinnovation.beerstock.exceptions.BeerAlreadyRegisteredException;
 import one.digitalinnovation.beerstock.exceptions.BeerNotFoundException;
 import one.digitalinnovation.beerstock.exceptions.BeerStockExceededException;
+import one.digitalinnovation.beerstock.exceptions.BeerStockLessThanZeroException;
 import one.digitalinnovation.beerstock.service.BeerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -47,5 +48,11 @@ public class BeerController {
     @ResponseStatus(HttpStatus.OK)
     public BeerDTO increment(@PathVariable Long id, @RequestBody @Valid QuantityDTO quantityDTO) throws BeerNotFoundException, BeerStockExceededException {
         return beerService.increment(id, quantityDTO.getQuantity());
+    }
+
+    @PatchMapping("/{id}/decrement")
+    @ResponseStatus(HttpStatus.OK)
+    public BeerDTO decrement(@PathVariable Long id, @RequestBody @Valid QuantityDTO quantityDTO) throws BeerNotFoundException, BeerStockLessThanZeroException {
+        return beerService.decrement(id, quantityDTO.getQuantity());
     }
 }
